@@ -1,45 +1,35 @@
-name: CI/CD for Flask App
+name: Auto Update Docker Container
 
 on:
   push:
     branches:
-      - main  # Chạy workflow khi có thay đổi trên nhánh main
+      - main
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  update-container:
+    runs-on: windows-latest
 
     steps:
-      # 1. Checkout mã nguồn
-      - name: Checkout code
-        uses: actions/checkout@v4
+    # Step 1: Check out the code
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      # 2. Đăng nhập vào Docker Hub
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}  # Docker username từ GitHub Secrets
-          password: ${{ secrets.DOCKER_PASSWORD }}  # Docker password từ GitHub Secrets
+    # Step 2: Log in to Docker Hub
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 3. Build Docker image
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app:latest .
+    # Step 3: Build and push the Docker image
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}//flask-app:latest .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}//flask-app:latest
 
-      # 4. Push Docker image lên Docker Hub
-      - name: Push Docker image to Docker Hub
-        run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
-
-      # 5. Deploy lên server qua SSH
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SERVER_HOST }}        # Địa chỉ IP hoặc hostname của server
-          username: ${{ secrets.SERVER_USER }}    # Tên người dùng trên server
-          key: ${{ secrets.SERVER_SSH_KEY }}      # SSH private key từ GitHub Secrets
-          script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
-            docker stop flask_app || true
-            docker rm flask_app || true
-            docker run -d --name flask_app -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
+    # Step 4: Deploy updated container (optional)
+    - name: Deploy Updated Container
+      run: |
+        docker-compose down
+        docker-compose pull
+        docker-compose up -d
