@@ -34,10 +34,5 @@ jobs:
           platforms: linux/amd64  # Xác định kiến trúc hình ảnh (có thể thay đổi nếu cần)
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/flask-app:v1
-            ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
-
-      # Bước 5: Đẩy hình ảnh lên Docker Hub
-      - name: Push Docker image to Docker Hub
-        uses: docker/build-push-action@v5
-        with:
+            ${{ secrets.DOCKER_USERNAME }}/flask-app:latest 
           push: true
