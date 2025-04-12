@@ -24,8 +24,8 @@ jobs:
     # Step 3: Build and push the Docker image
     - name: Build and Push Docker Image
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app:latest .
-        docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-app:v1 .
+        docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:v1
 
     # Step 4: Deploy updated container (optional)
     - name: Deploy Updated Container
